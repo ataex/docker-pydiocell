@@ -1,0 +1,50 @@
+version: '3.6'
+
+networks:
+  external-nginx-proxy:
+    external:
+      name: nginx-proxy-net
+
+services:
+
+  db:
+    image: mysql:5.7
+    container_name: pydio-mysql
+    restart: always
+    environment:
+      - "MYSQL_ROOT_PASSWORD={{PYDIO_MYSQL_ROOT_PASSWORD}}"
+      - "MYSQL_USER={{PYDIO_MYSQL_USER}}"
+      - "MYSQL_PASSWORD={{PYDIO_MYSQL_PASSWORD}}"
+      - "MYSQL_DATABASE={{PYDIO_MYSQL_DATABASE}}"
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    networks:
+      - external-nginx-proxy
+
+  cells:
+    image: pydio/cells:1.5.3
+    container_name: pydio-cells
+    restart: always
+    ports:
+      - "8888:8888"
+    environment:
+      - "VIRTUAL_HOST={{PYDIO_URL}}"
+      - "VIRTUAL_PORT=8888"
+      - "LETSENCRYPT_HOST={{PYDIO_URL}}"
+      - "LETSENCRYPT_EMAIL={{EMAIL}}"
+      - "CELLS_BIND=0.0.0.0:8888"
+      - "CELLS_EXTERNAL={{PYDIO_URL}}:8888"
+      - CELLS_NO_SSL=1
+    volumes:
+      - ./cells:/root/.config/pydio/cells
+      - ./cells/logs:/root/.config/pydio/cells/logs
+      - ./cells/data:/root/.config/pydio/cells/data
+      - ./cells/services:/root/.config/pydio/cells/services
+      - ./cells/static:/root/.config/pydio/cells/static
+    networks:
+      - external-nginx-proxy
+    depends_on:
+      - db

@@ -1,0 +1,57 @@
+version: '3.6'
+
+networks:
+  netrunner:
+    driver: bridge
+
+services:
+
+  db:
+    image: mysql:5.7
+    container_name: pydio-mysql
+    restart: always
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+    command: [mysqld, --character-set-server=utf8mb4, --collation-server=utf8mb4_unicode_ci]
+    ports:
+      - "3306:3306"
+    volumes:
+      - ./db:/var/lib/mysql
+    networks:
+      - netrunner
+
+  cells:
+    image: pydio/cells:1.5.3
+    container_name: pydio-cells
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - CELLS_BIND=0.0.0.0:8080
+      - CELLS_EXTERNAL=localhost:8080
+      - CELLS_NO_SSL=1
+    volumes:
+      - ./cells:/root/.config/pydio/cells
+      - ./cells/logs:/root/.config/pydio/cells/logs
+      - ./cells/data:/root/.config/pydio/cells/data
+      - ./cells/services:/root/.config/pydio/cells/services
+      - ./cells/static:/root/.config/pydio/cells/static
+    networks:
+      - netrunner
+    depends_on:
+      - db
+      - php-fpm
+
+  php-fpm:
+    image: pydio/cells-php-fpm:latest
+    container_name: pydio-fpm
+    restart: always
+    volumes:
+      - ./cells/static:/root/.config/pydio/cells/static
+    ports:
+      - "9000:9000"
+    networks:
+      - netrunner
