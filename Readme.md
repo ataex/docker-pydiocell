@@ -27,7 +27,7 @@ then
 
 # Launch on production
 
-> with with jrcs' letsencrypt-nginx-proxy-companion
+> with docker image jrcs' letsencrypt-nginx-proxy-companion
 
 `cd production`
 
@@ -36,8 +36,10 @@ then
 > During the installation
 > Select socket with `/var/run/mysqld/mysqld.sock` 
 
-> After the success installation
-> mod the pydio.js `sudo vim cells/pydio.json`
+> After install success
+> mod the pydio.json `sudo vim cells/pydio.json`
+
+#### from
 
 ```json
  16   "defaults": {
@@ -47,6 +49,8 @@ then
  20     "urlInternal": "http://0.0.0.0:8888"
  21   },
 ```
+
+#### to
 
 ```json
  16   "defaults": {
