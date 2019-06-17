@@ -30,3 +30,31 @@ then
 > with with jrcs' letsencrypt-nginx-proxy-companion
 
 `cd production`
+
+`docker-compose up`
+
+> During the installation
+> Select socket with `/var/run/mysqld/mysqld.sock` 
+
+> After the success installation
+> mod the pydio.js `sudo vim cells/pydio.json`
+
+```json
+ 16   "defaults": {
+ 17     "database": "your_docker_id",
+ 18     "datasource": "pydiods1",
+ 19     "url": "http://sub.yourdomain:8888",
+ 20     "urlInternal": "http://0.0.0.0:8888"
+ 21   },
+```
+
+```json
+ 16   "defaults": {
+ 17     "database": "your_docker_id",
+ 18     "datasource": "pydiods1",
+ 19     "url": "https://sub.yourdomain",
+ 20     "urlInternal": "http://0.0.0.0:8888"
+ 21   },
+```
+
+`ERROR   pydio.rest.frontend     cannot init oidc provider`
